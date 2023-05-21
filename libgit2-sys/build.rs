@@ -41,6 +41,7 @@ fn main() {
     cp_r("libgit2/include", &include);
 
     cfg.include(&include)
+        .include("libgit2/deps/xdiff")
         .include("libgit2/src/libgit2")
         .include("libgit2/src/util")
         .out_dir(dst.join("build"))
@@ -49,7 +50,7 @@ fn main() {
     // Include all cross-platform C files
     add_c_files(&mut cfg, "libgit2/src/libgit2");
     add_c_files(&mut cfg, "libgit2/src/util");
-    add_c_files(&mut cfg, "libgit2/src/libgit2/xdiff");
+    add_c_files(&mut cfg, "libgit2/deps/xdiff");
 
     // These are activated by features, but they're all unconditionally always
     // compiled apparently and have internal #define's to make sure they're
@@ -114,6 +115,12 @@ fn main() {
     features.push_str("#define INCLUDE_features_h\n");
     features.push_str("#define GIT_THREADS 1\n");
     features.push_str("#define GIT_TRACE 1\n");
+
+    if windows {
+        features.push_str("#define GIT_IO_WSAPOLL 1\n");
+    } else {
+        features.push_str("#define GIT_IO_POLL 1\n");
+    }
 
     if !target.contains("android") {
         features.push_str("#define GIT_USE_NSEC 1\n");

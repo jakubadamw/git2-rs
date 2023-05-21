@@ -122,7 +122,8 @@ pub use crate::reference::{Reference, ReferenceNames, References};
 pub use crate::reflog::{Reflog, ReflogEntry, ReflogIter};
 pub use crate::refspec::Refspec;
 pub use crate::remote::{
-    FetchOptions, PushOptions, Refspecs, Remote, RemoteConnection, RemoteHead, RemoteRedirect,
+    FetchDepth, FetchOptions, PushOptions, Refspecs, Remote, RemoteConnection, RemoteHead,
+    RemoteRedirect,
 };
 pub use crate::remote_callbacks::{CertificateCheckStatus, Credentials, RemoteCallbacks};
 pub use crate::remote_callbacks::{TransportMessage, UpdateTips};

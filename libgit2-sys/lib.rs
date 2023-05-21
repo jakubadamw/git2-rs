@@ -396,6 +396,14 @@ pub struct git_fetch_options {
     pub proxy_opts: git_proxy_options,
     pub follow_redirects: git_remote_redirect_t,
     pub custom_headers: git_strarray,
+    pub depth: c_uint,
+}
+
+git_enum! {
+    pub enum git_fetch_depth_t {
+        GIT_FETCH_DEPTH_FULL = 0,
+        GIT_FETCH_DEPTH_UNSHALLOW = 2147483647,
+    }
 }
 
 git_enum! {

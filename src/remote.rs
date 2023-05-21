@@ -37,6 +37,16 @@ pub struct RemoteHead<'remote> {
     _marker: marker::PhantomData<&'remote str>,
 }
 
+/// Depth to use for a fetch operation.
+pub enum FetchDepth {
+    /// The fetch is full.
+    Full,
+    /// The fetch is of the given depth.
+    Depth(u16),
+    /// An existing shallow fetch can be turned into full.
+    Unshallow,
+}
+
 /// Options which can be specified to various fetch operations.
 pub struct FetchOptions<'cb> {
     callbacks: Option<RemoteCallbacks<'cb>>,
@@ -47,6 +57,7 @@ pub struct FetchOptions<'cb> {
     follow_redirects: RemoteRedirect,
     custom_headers: Vec<CString>,
     custom_headers_ptrs: Vec<*const c_char>,
+    depth: FetchDepth,
 }
 
 /// Options to control the behavior of a git push.
@@ -507,6 +518,7 @@ impl<'cb> FetchOptions<'cb> {
             follow_redirects: RemoteRedirect::Initial,
             custom_headers: Vec::new(),
             custom_headers_ptrs: Vec::new(),
+            depth: FetchDepth::Full,
         }
     }
 
@@ -564,6 +576,12 @@ impl<'cb> FetchOptions<'cb> {
         self.custom_headers_ptrs = self.custom_headers.iter().map(|s| s.as_ptr()).collect();
         self
     }
+
+    /// Set the depth used in fetching.
+    pub fn depth(&mut self, depth: FetchDepth) -> &mut Self {
+        self.depth = depth;
+        self
+    }
 }
 
 impl<'cb> Binding for FetchOptions<'cb> {
@@ -592,6 +610,11 @@ impl<'cb> Binding for FetchOptions<'cb> {
             custom_headers: git_strarray {
                 count: self.custom_headers_ptrs.len(),
                 strings: self.custom_headers_ptrs.as_ptr() as *mut _,
+            },
+            depth: match self.depth {
+                FetchDepth::Full => raw::GIT_FETCH_DEPTH_FULL,
+                FetchDepth::Depth(depth) => depth as u32,
+                FetchDepth::Unshallow => raw::GIT_FETCH_DEPTH_UNSHALLOW,
             },
         }
     }
